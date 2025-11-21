@@ -15,8 +15,10 @@ const Login = () => {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
-      
-      // Check if email is from institutional domain
+
+      // Check if email is from institutional domain - TEMPORARILY DISABLED FOR TESTING
+      // TODO: Re-enable this validation later
+      /*
       const email = result.user.email;
       if (!email || !email.endsWith('@iiitnr.edu.in')) {
         // Sign out if not institutional email
@@ -24,9 +26,10 @@ const Login = () => {
         toast.error('Please use your institutional email (@iiitnr.edu.in)');
         return;
       }
-      
+      */
+
       toast.success('Logged in successfully');
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       console.error(err);
       toast.error(err?.message || 'Failed to login with Google');
@@ -46,8 +49,8 @@ const Login = () => {
           <p className="text-muted-foreground mt-2">Faculty Portal</p>
         </div>
         <div className="space-y-4">
-          <Button 
-            onClick={handleGoogleLogin} 
+          <Button
+            onClick={handleGoogleLogin}
             className="w-full flex items-center justify-center gap-3 py-6 text-lg"
             disabled={loading}
           >
@@ -72,7 +75,7 @@ const Login = () => {
             {loading ? 'Signing in...' : 'Sign in with Google'}
           </Button>
           <p className="text-xs text-center text-muted-foreground mt-4">
-            Please use your institutional email (@iiitnr.edu.in)
+            Sign in with any Google account (testing mode)
           </p>
         </div>
       </Card>

@@ -27,7 +27,7 @@ const App = () => (
         <BrowserRouter basename={basename}>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/qr-session/:classId" element={<ProtectedRoute><QRSession /></ProtectedRoute>} />
             <Route path="/manual-marking/:classId?" element={<ProtectedRoute><ManualMarking /></ProtectedRoute>} />

@@ -1,7 +1,7 @@
 import { getIdToken } from './firebase';
 
 // Use environment variable for API base URL
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "https://iiitnrattendence-backend.onrender.com";
 
 async function request(path: string, options: RequestInit = {}) {
   const token = await getIdToken();
@@ -18,7 +18,7 @@ async function request(path: string, options: RequestInit = {}) {
 
   const text = await res.text();
   let data: any = null;
-  try { data = text ? JSON.parse(text) : null; } catch(e) { data = text; }
+  try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
 
   if (!res.ok) {
     const err = new Error(data?.error || res.statusText || 'Request failed');
@@ -68,8 +68,8 @@ export async function listCourseStudents(courseId: string, sessionId?: string) {
 }
 
 export async function saveManualAttendance(sessionId: string, presentStudentIds: string[]) {
-  return request(`/api/faculty/session/${sessionId}/manual-attendance`, { 
-    method: 'POST', 
+  return request(`/api/faculty/session/${sessionId}/manual-attendance`, {
+    method: 'POST',
     body: JSON.stringify({ presentStudentIds })
   });
 }
