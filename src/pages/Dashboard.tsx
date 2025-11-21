@@ -89,7 +89,7 @@ const Dashboard = () => {
   const [qrActive, setQrActive] = useState(false);
   const [qrTimer, setQrTimer] = useState(300);
   const [qrDuration, setQrDuration] = useState(5);
-  const [locationRadius, setLocationRadius] = useState(25);
+  const [locationRadius, setLocationRadius] = useState(100);
   const [searchQuery, setSearchQuery] = useState('');
   const [attendanceList, setAttendanceList] = useState<AttendedStudent[]>([]);
   const [sessionEnded, setSessionEnded] = useState(false);
