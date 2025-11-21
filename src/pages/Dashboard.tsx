@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import logoImage from '/iiitnrattendence logo.png';
+import logoImage from '/justlogo.png';
 import {
   Select,
   SelectContent,
@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { 
+import {
   Calendar,
   Clock,
   Users,
@@ -261,11 +261,11 @@ const Dashboard = () => {
   };
 
   const handleStudentSearch = (student: Student, status: 'present' | 'absent') => {
-    const updated = studentList.map(s => 
+    const updated = studentList.map(s =>
       s.id === student.id ? { ...s, status } : s
     );
     setStudentList(updated);
-    
+
     if (status === 'present' && !attendanceList.find(a => a.id === student.id)) {
       setAttendanceList([...attendanceList, { ...student, time: new Date().toLocaleTimeString() }]);
       toast.success(`${student.name} marked present`);
@@ -281,8 +281,8 @@ const Dashboard = () => {
     toast.success('Session ended successfully');
   };
 
-  const filteredStudents = studentList.filter(s => 
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+  const filteredStudents = studentList.filter(s =>
+    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.roll.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -348,7 +348,7 @@ const Dashboard = () => {
     try {
       await deleteCourse(courseId);
       toast.success('Class deleted successfully');
-      
+
       // Refresh courses list
       const res = await listCourses();
       const mapped = (res?.courses || []).map((c: any) => ({
@@ -399,7 +399,7 @@ const Dashboard = () => {
       toast.error('Please select a class');
       return;
     }
-    
+
     // Validate course selection
     if (!selectedQuickCourse) {
       toast.error('Please select a course/subject');
@@ -416,12 +416,12 @@ const Dashboard = () => {
     // Switch to the course view and start session
     setSelectedCourse(course);
     setActiveTab('classes');
-    
+
     // Reset session state
     setQrActive(false);
     setSessionEnded(false);
     setAttendanceList([]);
-    
+
     // Use course-specific students if available
     const courseStudents = course.students?.map(s => ({
       id: s.id,
@@ -430,7 +430,7 @@ const Dashboard = () => {
       status: null as 'present' | 'absent' | null
     })) || students;
     setStudentList(courseStudents);
-    
+
     // Auto-generate QR for the course
     setTimeout(() => {
       setQrActive(true);
@@ -479,41 +479,37 @@ const Dashboard = () => {
           <div className="flex gap-1">
             <button
               onClick={() => { setActiveTab('home'); setSelectedCourse(null); }}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === 'home' 
-                  ? 'text-primary border-b-2 border-primary' 
-                  : 'text-muted-foreground hover:text-primary'
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeTab === 'home'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-primary'
+                }`}
             >
               Home
             </button>
             <button
               onClick={() => { setActiveTab('classes'); setSelectedCourse(null); }}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === 'classes' 
-                  ? 'text-primary border-b-2 border-primary' 
-                  : 'text-muted-foreground hover:text-primary'
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeTab === 'classes'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-primary'
+                }`}
             >
               Classes
             </button>
             <button
               onClick={() => { setActiveTab('timetable'); setSelectedCourse(null); }}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === 'timetable' 
-                  ? 'text-primary border-b-2 border-primary' 
-                  : 'text-muted-foreground hover:text-primary'
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeTab === 'timetable'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-primary'
+                }`}
             >
               Full Timetable
             </button>
             <button
               onClick={() => { setActiveTab('settings'); setSelectedCourse(null); }}
-              className={`px-6 py-4 font-medium transition-colors ${
-                activeTab === 'settings' 
-                  ? 'text-primary border-b-2 border-primary' 
-                  : 'text-muted-foreground hover:text-primary'
-              }`}
+              className={`px-6 py-4 font-medium transition-colors ${activeTab === 'settings'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-primary'
+                }`}
             >
               Settings
             </button>
@@ -535,9 +531,9 @@ const Dashboard = () => {
                   <Input
                     placeholder="e.g., CSE2024"
                     value={selectedClass ? selectedClass : classQuery}
-                    onChange={(e) => { 
-                      setSelectedClass(null); 
-                      setClassQuery((e.target as HTMLInputElement).value); 
+                    onChange={(e) => {
+                      setSelectedClass(null);
+                      setClassQuery((e.target as HTMLInputElement).value);
                       setShowClassSuggestions(true);
                       setSelectedQuickCourse(""); // Reset course when class changes
                     }}
@@ -553,11 +549,11 @@ const Dashboard = () => {
                         <button
                           key={opt}
                           className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
-                          onClick={() => { 
-                            setSelectedClass(opt); 
-                            setClassQuery(''); 
+                          onClick={() => {
+                            setSelectedClass(opt);
+                            setClassQuery('');
                             setShowClassSuggestions(false);
-                            
+
                             // Auto-select course if only one option
                             const matchingCourses = courses.filter(c => c.className === opt);
                             if (matchingCourses.length === 1) {
@@ -577,8 +573,8 @@ const Dashboard = () => {
                 {/* Course/Subject selector */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Select Course/Subject</label>
-                  <Select 
-                    value={selectedQuickCourse} 
+                  <Select
+                    value={selectedQuickCourse}
                     onValueChange={setSelectedQuickCourse}
                     disabled={!selectedClass && !classQuery}
                   >
@@ -645,7 +641,7 @@ const Dashboard = () => {
                   ))}
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 {facultyData.timetable[selectedDay].length > 0 ? (
                   facultyData.timetable[selectedDay].map((slot, idx) => (
@@ -702,7 +698,7 @@ const Dashboard = () => {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">My Classes</h2>
-              <Button 
+              <Button
                 onClick={() => setAddClassDialogOpen(true)}
                 className="flex items-center gap-2"
               >
@@ -718,7 +714,7 @@ const Dashboard = () => {
                   <p className="text-lg font-medium">No classes registered yet</p>
                   <p className="text-sm mt-2">Click "Add Class" to register your first class</p>
                 </div>
-                <Button 
+                <Button
                   onClick={() => setAddClassDialogOpen(true)}
                   className="mt-4"
                 >
@@ -733,9 +729,9 @@ const Dashboard = () => {
                   const today = new Date();
                   const currentDay = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][today.getDay()];
                   const nextClass = course.timetable?.find(slot => slot.day === currentDay);
-                  
+
                   return (
-                    <Card 
+                    <Card
                       key={course.id}
                       className="p-6 hover:shadow-xl transition-all border-2 border-transparent hover:border-primary/30 relative"
                     >
@@ -774,41 +770,41 @@ const Dashboard = () => {
                           </Badge>
                           <Badge variant="outline">{course.session || 'Spring'}</Badge>
                         </div>
-                      
-                      <h3 className="text-xl font-bold mb-2">{course.courseName}</h3>
-                      
-                      <div className="space-y-2 text-sm text-muted-foreground mb-4">
-                        <div className="flex justify-between">
-                          <span>Branch & Year:</span>
-                          <span className="font-semibold text-foreground">
-                            {course.branch || 'CSE'} {course.year || '2024'}
-                          </span>
-                        </div>
-                        
-                        <div className="flex justify-between">
-                          <span>Credits:</span>
-                          <span className="font-semibold text-foreground">{course.credits || 3}</span>
-                        </div>
-                        
-                        {course.semester && (
+
+                        <h3 className="text-xl font-bold mb-2">{course.courseName}</h3>
+
+                        <div className="space-y-2 text-sm text-muted-foreground mb-4">
                           <div className="flex justify-between">
-                            <span>Semester:</span>
-                            <span className="font-semibold text-foreground">{course.semester}</span>
+                            <span>Branch & Year:</span>
+                            <span className="font-semibold text-foreground">
+                              {course.branch || 'CSE'} {course.year || '2024'}
+                            </span>
                           </div>
-                        )}
-                        
-                        {nextClass && (
+
                           <div className="flex justify-between">
-                            <span>Next Class:</span>
-                            <span className="font-semibold text-foreground">{nextClass.time}</span>
+                            <span>Credits:</span>
+                            <span className="font-semibold text-foreground">{course.credits || 3}</span>
                           </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 text-muted-foreground pt-3 border-t">
-                        <Users size={18} />
-                        <span>{course.totalStudents} Students</span>
-                      </div>
+
+                          {course.semester && (
+                            <div className="flex justify-between">
+                              <span>Semester:</span>
+                              <span className="font-semibold text-foreground">{course.semester}</span>
+                            </div>
+                          )}
+
+                          {nextClass && (
+                            <div className="flex justify-between">
+                              <span>Next Class:</span>
+                              <span className="font-semibold text-foreground">{nextClass.time}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 text-muted-foreground pt-3 border-t">
+                          <Users size={18} />
+                          <span>{course.totalStudents} Students</span>
+                        </div>
                       </div>
                     </Card>
                   );
@@ -816,7 +812,7 @@ const Dashboard = () => {
               </div>
             )}
           </div>
-  )}
+        )}
 
         {activeTab === 'timetable' && (
           <Card className="p-6">
@@ -858,11 +854,10 @@ const Dashboard = () => {
                             slot => slot.time === timeSlot
                           );
                           return (
-                            <td 
-                              key={day} 
-                              className={`p-3 border align-top ${
-                                classInSlot ? 'bg-card' : 'bg-muted/20'
-                              }`}
+                            <td
+                              key={day}
+                              className={`p-3 border align-top ${classInSlot ? 'bg-card' : 'bg-muted/20'
+                                }`}
                             >
                               {classInSlot ? (
                                 <div className="text-sm">
@@ -892,7 +887,7 @@ const Dashboard = () => {
 
         {selectedCourse && (
           <div className="space-y-6">
-            <Button 
+            <Button
               variant="ghost"
               className="flex items-center gap-2 w-fit"
               onClick={() => setSelectedCourse(null)}
@@ -935,7 +930,7 @@ const Dashboard = () => {
               <div className="lg:col-span-2">
                 <Card className="p-6">
                   <h3 className="text-xl font-bold mb-6">QR Code Attendance</h3>
-                  
+
                   {!qrActive && !sessionEnded && (
                     <div className="space-y-6">
                       <div className="grid md:grid-cols-2 gap-4">
@@ -943,7 +938,7 @@ const Dashboard = () => {
                           <label className="block text-sm font-medium mb-2">
                             QR Validity (minutes)
                           </label>
-                          <Input 
+                          <Input
                             type="number"
                             value={qrDuration}
                             onChange={(e) => setQrDuration(Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1))}
@@ -954,7 +949,7 @@ const Dashboard = () => {
                           <label className="block text-sm font-medium mb-2">
                             Location Radius (meters)
                           </label>
-                          <Input 
+                          <Input
                             type="number"
                             value={locationRadius}
                             onChange={(e) => setLocationRadius(Math.min(500, Math.max(5, parseInt((e.target as HTMLInputElement).value) || 25)))}
@@ -963,8 +958,8 @@ const Dashboard = () => {
                           />
                         </div>
                       </div>
-                      
-                      <Button 
+
+                      <Button
                         onClick={generateQR}
                         className="w-full flex items-center justify-center gap-2"
                         size="lg"
@@ -989,7 +984,7 @@ const Dashboard = () => {
                           {formatTime(qrTimer)}
                         </div>
                         <div className="w-full bg-muted rounded-full h-2 mb-4">
-                          <div 
+                          <div
                             className="bg-primary h-2 rounded-full transition-all"
                             style={{ width: `${(qrTimer / (qrDuration * 60)) * 100}%` }}
                           />
@@ -997,15 +992,15 @@ const Dashboard = () => {
                         <p className="text-muted-foreground">Time remaining</p>
                         <p className="text-sm text-muted-foreground mt-2">Range: {locationRadius}m</p>
                       </div>
-                      
+
                       <div className="grid grid-cols-2 gap-4">
-                        <Button 
+                        <Button
                           onClick={regenerateQR}
                           variant="secondary"
                         >
                           Regenerate QR
                         </Button>
-                        <Button 
+                        <Button
                           onClick={endSession}
                           variant="destructive"
                         >
@@ -1022,7 +1017,7 @@ const Dashboard = () => {
                           <BarChart3 className="text-green-600" size={32} />
                           <h4 className="text-2xl font-bold">Session Statistics</h4>
                         </div>
-                        
+
                         <div className="grid grid-cols-3 gap-4 mt-6">
                           <Card className="p-4 text-center">
                             <div className="text-3xl font-bold text-primary">{selectedCourse.totalStudents}</div>
@@ -1037,10 +1032,10 @@ const Dashboard = () => {
                             <div className="text-sm text-muted-foreground mt-1">Absent</div>
                           </Card>
                         </div>
-                        
+
                         <div className="mt-4">
                           <div className="w-full bg-muted rounded-full h-4">
-                            <div 
+                            <div
                               className="bg-green-600 h-4 rounded-full"
                               style={{ width: `${(presentCount / selectedCourse.totalStudents) * 100}%` }}
                             />
@@ -1050,8 +1045,8 @@ const Dashboard = () => {
                           </p>
                         </div>
                       </div>
-                      
-                      <Button 
+
+                      <Button
                         onClick={() => {
                           setSessionEnded(false);
                           setStudentList(students);
@@ -1069,7 +1064,7 @@ const Dashboard = () => {
                     <h4 className="text-lg font-bold mb-4">Manual Attendance</h4>
                     <div className="relative mb-4">
                       <Search className="absolute left-3 top-3 text-muted-foreground" size={20} />
-                      <Input 
+                      <Input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery((e.target as HTMLInputElement).value)}
@@ -1077,7 +1072,7 @@ const Dashboard = () => {
                         className="pl-10"
                       />
                     </div>
-                    
+
                     {searchQuery && (
                       <div className="space-y-2 max-h-64 overflow-y-auto">
                         {filteredStudents.map(student => (
@@ -1161,7 +1156,7 @@ const Dashboard = () => {
             <Card className="p-6">
               <h2 className="text-2xl font-bold mb-4">Contact Info for Students</h2>
               <p className="text-sm text-muted-foreground mb-4">Add contact persons (Faculty/TA) for students to reach</p>
-              
+
               {/* List of existing contacts */}
               {contactPersons.length > 0 && (
                 <div className="space-y-3 mb-6">
@@ -1197,8 +1192,8 @@ const Dashboard = () => {
                 <h3 className="font-semibold">Add New Contact</h3>
                 <div>
                   <label className="block text-sm font-medium mb-2">Person's Name</label>
-                  <Input 
-                    type="text" 
+                  <Input
+                    type="text"
                     placeholder="Enter name"
                     value={newContactName}
                     onChange={(e) => setNewContactName(e.target.value)}
@@ -1208,8 +1203,8 @@ const Dashboard = () => {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium mb-2">Mobile Number</label>
-                    <Input 
-                      type="tel" 
+                    <Input
+                      type="tel"
                       placeholder="+91 XXXXX XXXXX"
                       value={newContactMobile}
                       onChange={(e) => setNewContactMobile(e.target.value)}
@@ -1217,8 +1212,8 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">WhatsApp Number</label>
-                    <Input 
-                      type="tel" 
+                    <Input
+                      type="tel"
                       placeholder="+91 XXXXX XXXXX"
                       value={newContactWhatsapp}
                       onChange={(e) => setNewContactWhatsapp(e.target.value)}
@@ -1226,7 +1221,7 @@ const Dashboard = () => {
                   </div>
                 </div>
 
-                <Button 
+                <Button
                   onClick={() => {
                     if (newContactName && newContactMobile && newContactWhatsapp) {
                       setContactPersons([...contactPersons, {
@@ -1255,7 +1250,7 @@ const Dashboard = () => {
       </main>
 
       {/* Add Class Dialog */}
-      <AddClassDialog 
+      <AddClassDialog
         open={addClassDialogOpen}
         onOpenChange={setAddClassDialogOpen}
         onClassAdded={handleClassAdded}
