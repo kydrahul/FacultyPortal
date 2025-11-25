@@ -1,0 +1,43 @@
+import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import logoImage from '/justlogo.png';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Calendar,
+  Clock,
+  Users,
+  MapPin,
+  Search,
+  LogOut,
+  QrCode,
+  CheckCircle,
+  XCircle,
+  BarChart3,
+  ArrowLeft,
+  Plus,
+  MoreVertical,
+  Trash2
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from '@/context/AuthContext';
+import { QRCodeSVG } from "qrcode.react";
+import { toast } from "sonner";
+import { AddClassDialog } from '@/components/AddClassDialog';
+import { EnrolledStudentsList } from '@/components/EnrolledStudentsList';
+import { listCourses, deleteCourse, generateQr, getSessionAttendance, listCourseStudents } from '@/services/api';
+import { useAttendance } from '@/hooks/useAttendance';

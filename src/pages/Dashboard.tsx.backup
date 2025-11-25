@@ -39,8 +39,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { toast } from "sonner";
 import { AddClassDialog } from '@/components/AddClassDialog';
 import { EnrolledStudentsList } from '@/components/EnrolledStudentsList';
-import { listCourses, deleteCourse, generateQr, getSessionAttendance, listCourseStudents } from '@/services/api';
-import { useAttendance } from '@/hooks/useAttendance';
+import { listCourses, deleteCourse, generateQr } from '@/services/api';
 
 interface ClassSession {
   id: string;
@@ -64,7 +63,7 @@ interface ClassSession {
 }
 
 interface Student {
-  id: number | string;
+  id: number;
   name: string;
   roll: string;
   status: 'present' | 'absent' | null;
@@ -94,7 +93,6 @@ const Dashboard = () => {
   const [locationRadius, setLocationRadius] = useState(1100);
   const [searchQuery, setSearchQuery] = useState('');
   const [attendanceList, setAttendanceList] = useState<AttendedStudent[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [sessionEnded, setSessionEnded] = useState(false);
   const [now, setNow] = useState<Date>(new Date());
 
@@ -202,12 +200,13 @@ const Dashboard = () => {
     recentSessions: [] // Empty - will be populated from real data later
   };
 
-  // Use custom hook for attendance management
-  const { studentList, setStudentList, liveAttendanceList, setLiveAttendanceList } = useAttendance(
-    selectedCourse?.id || null,
-    qrActive,
-    currentSessionId
-  );
+  const [studentList, setStudentList] = useState<Student[]>([
+    { id: 1, name: 'Aarav Sharma', roll: 'CSE2021001', status: null },
+    { id: 2, name: 'Ananya Patel', roll: 'CSE2021002', status: null },
+    { id: 3, name: 'Arjun Singh', roll: 'CSE2021003', status: null },
+    { id: 4, name: 'Diya Gupta', roll: 'CSE2021004', status: null },
+    { id: 5, name: 'Ishaan Kumar', roll: 'CSE2021005', status: null },
+  ]);
 
   useEffect(() => {
     if (qrActive && qrTimer > 0) {
@@ -243,8 +242,6 @@ const Dashboard = () => {
       setQrTimer(qrDuration * 60);
       setSessionEnded(false);
       setCourseQRValue(response.qrData);
-      setCurrentSessionId(response.sessionId); // Store session ID for live attendance
-      setLiveAttendanceList([]); // Reset live attendance list
       toast.success('QR Code generated successfully');
     } catch (error: any) {
       toast.error(error.message || 'Failed to generate QR code');
@@ -269,7 +266,6 @@ const Dashboard = () => {
 
       setQrTimer(qrDuration * 60);
       setCourseQRValue(response.qrData);
-      setCurrentSessionId(response.sessionId); // Update session ID
       toast.success('QR Code regenerated');
     } catch (error: any) {
       toast.error(error.message || 'Failed to regenerate QR code');
@@ -1191,13 +1187,13 @@ const Dashboard = () => {
                   <Card className="p-6">
                     <h3 className="text-xl font-bold mb-4">Live Attendance</h3>
                     <div className="space-y-3">
-                      {liveAttendanceList.length === 0 ? (
+                      {attendanceList.length === 0 ? (
                         <div className="text-center py-12 text-muted-foreground">
                           <Users size={48} className="mx-auto mb-4" />
                           <p>No students marked present yet</p>
                         </div>
                       ) : (
-                        liveAttendanceList.map(student => (
+                        attendanceList.map(student => (
                           <div key={student.id} className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-950 rounded-lg border border-green-200 dark:border-green-800">
                             <CheckCircle className="text-green-600 mt-1" size={20} />
                             <div className="flex-1">
