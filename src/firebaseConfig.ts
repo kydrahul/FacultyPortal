@@ -7,13 +7,14 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Read Firebase configuration from Vite env (VITE_FIREBASE_*)
+// Fallback to hardcoded values for deployment (these are public anyway)
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY as string | undefined,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN as string | undefined,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID as string | undefined,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET as string | undefined,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID as string | undefined,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID as string | undefined,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyD1TQ3HK2jRy73WizJsK6AXScQshslHvss",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "iiitnr-attendence-app-f604e.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "iiitnr-attendence-app-f604e",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "iiitnr-attendence-app-f604e.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "790561423093",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:790561423093:web:5127a765b55b8870970fbc",
 };
 
 // Basic sanity check - log warning instead of throwing error
