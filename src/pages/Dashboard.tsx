@@ -217,9 +217,9 @@ const Dashboard = () => {
     currentSessionId
   );
 
-  // Fetch attendance grid when course is selected or tab changes to 'students'
+  // Fetch attendance grid when course is selected
   useEffect(() => {
-    if (selectedCourse && courseTab === 'students') {
+    if (selectedCourse) {
       (async () => {
         try {
           const res = await getCourseAttendanceGrid(selectedCourse.id);
@@ -234,7 +234,7 @@ const Dashboard = () => {
         }
       })();
     }
-  }, [selectedCourse?.id, courseTab, qrActive]); // Refresh when QR session ends
+  }, [selectedCourse?.id, qrActive]); // Refresh when QR session ends
 
   // Auto-refresh QR and Session Timer
   // Auto-refresh QR and Session Timer
