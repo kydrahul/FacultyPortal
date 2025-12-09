@@ -227,8 +227,11 @@ const Dashboard = () => {
             setAttendanceGridSessions(res.sessions || []);
             setAttendanceGridStudents(res.students || []);
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Failed to fetch attendance grid:', error);
+          if (error.status) console.error('Status:', error.status);
+          if (error.body) console.error('Body:', error.body);
+
           setAttendanceGridSessions([]);
           setAttendanceGridStudents([]);
         }
