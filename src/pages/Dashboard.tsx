@@ -42,6 +42,7 @@ import { EnrolledStudentsList } from '@/components/EnrolledStudentsList';
 import { SettingsTab } from '@/components/SettingsTab';
 import { listCourses, deleteCourse, generateQr, getSessionAttendance, listCourseStudents, refreshQr, saveManualAttendance, stopSession, getCourseAttendanceGrid } from '@/services/api';
 import { useAttendance } from '@/hooks/useAttendance';
+import { SessionHistoryList } from '@/components/SessionHistoryList';
 
 interface ClassSession {
   id: string;
@@ -119,7 +120,7 @@ const Dashboard = () => {
   const [newContactName, setNewContactName] = useState<string>("");
   const [newContactMobile, setNewContactMobile] = useState<string>("");
   const [newContactWhatsapp, setNewContactWhatsapp] = useState<string>("");
-  const [courseTab, setCourseTab] = useState<'live' | 'students'>('live');
+  const [courseTab, setCourseTab] = useState<'live' | 'students' | 'history'>('live');
   const [attendanceGridSessions, setAttendanceGridSessions] = useState<any[]>([]);
   const [attendanceGridStudents, setAttendanceGridStudents] = useState<any[]>([]);
 
@@ -1047,6 +1048,15 @@ const Dashboard = () => {
                 >
                   Students
                 </button>
+                <button
+                  onClick={() => setCourseTab('history')}
+                  className={`px-6 py-3 font-medium transition-colors ${courseTab === 'history'
+                    ? 'text-primary border-b-2 border-primary'
+                    : 'text-muted-foreground hover:text-primary'
+                    }`}
+                >
+                  History
+                </button>
               </div>
             </div>
 
@@ -1399,6 +1409,17 @@ const Dashboard = () => {
                 />
               </div>
             )}
+
+            {courseTab === 'history' && (
+              <div className="space-y-6">
+                <SessionHistoryList
+                  sessions={attendanceGridSessions}
+                  students={attendanceGridStudents}
+                  totalStudents={selectedCourse.totalStudents}
+                />
+              </div>
+            )}
+
           </div>
         )}
 
