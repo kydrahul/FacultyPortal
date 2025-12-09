@@ -40,7 +40,7 @@ import { toast } from "sonner";
 import { AddClassDialog } from '@/components/AddClassDialog';
 import { EnrolledStudentsList } from '@/components/EnrolledStudentsList';
 import { SettingsTab } from '@/components/SettingsTab';
-import { listCourses, deleteCourse, generateQr, getSessionAttendance, listCourseStudents, refreshQr, saveManualAttendance, stopSession } from '@/services/api';
+import { listCourses, deleteCourse, generateQr, getSessionAttendance, listCourseStudents, refreshQr, saveManualAttendance, stopSession, getCourseAttendanceGrid } from '@/services/api';
 import { useAttendance } from '@/hooks/useAttendance';
 
 interface ClassSession {
@@ -120,6 +120,8 @@ const Dashboard = () => {
   const [newContactMobile, setNewContactMobile] = useState<string>("");
   const [newContactWhatsapp, setNewContactWhatsapp] = useState<string>("");
   const [courseTab, setCourseTab] = useState<'live' | 'students'>('live');
+  const [attendanceGridSessions, setAttendanceGridSessions] = useState<any[]>([]);
+  const [attendanceGridStudents, setAttendanceGridStudents] = useState<any[]>([]);
 
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -214,6 +216,25 @@ const Dashboard = () => {
     qrActive,
     currentSessionId
   );
+
+  // Fetch attendance grid when course is selected or tab changes to 'students'
+  useEffect(() => {
+    if (selectedCourse && courseTab === 'students') {
+      (async () => {
+        try {
+          const res = await getCourseAttendanceGrid(selectedCourse.id);
+          if (res.success) {
+            setAttendanceGridSessions(res.sessions || []);
+            setAttendanceGridStudents(res.students || []);
+          }
+        } catch (error) {
+          console.error('Failed to fetch attendance grid:', error);
+          setAttendanceGridSessions([]);
+          setAttendanceGridStudents([]);
+        }
+      })();
+    }
+  }, [selectedCourse?.id, courseTab, qrActive]); // Refresh when QR session ends
 
   // Auto-refresh QR and Session Timer
   // Auto-refresh QR and Session Timer
@@ -1369,7 +1390,8 @@ const Dashboard = () => {
 
                 {/* Enrolled Students List Component */}
                 <EnrolledStudentsList
-                  students={studentList}
+                  students={attendanceGridStudents}
+                  sessions={attendanceGridSessions}
                   totalStudents={selectedCourse.totalStudents}
                 />
               </div>

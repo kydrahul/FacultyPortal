@@ -77,3 +77,7 @@ export async function saveManualAttendance(sessionId: string, studentId: string,
     body: JSON.stringify({ studentId, status })
   });
 }
+
+export async function getCourseAttendanceGrid(courseId: string) {
+  return request(`/api/faculty/course/${courseId}/attendance-grid`, { method: 'GET' });
+}
