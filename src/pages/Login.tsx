@@ -5,7 +5,7 @@ import { auth } from '@/firebaseConfig';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-import logoImage from '/justlogo.png';
+import logoImage from '/logo.png';
 
 const Login = () => {
   const [loading, setLoading] = useState(false);
