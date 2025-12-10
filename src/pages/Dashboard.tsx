@@ -925,7 +925,7 @@ const Dashboard = () => {
                         {/* Location Selection */}
                         <div>
                           <label className="block text-sm font-medium mb-2">
-                            Location (optional)
+                            Location
                           </label>
                           <div className="grid grid-cols-2 gap-2">
                             <Input
