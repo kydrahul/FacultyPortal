@@ -1,6 +1,9 @@
 # IIITNR Attendance System - Faculty Portal
 
+🚀 **Live Demo:** [https://kydrahul.github.io/FacultyPortal/](https://kydrahul.github.io/FacultyPortal/)
+
 The Faculty Portal is a web-based interface for professors to manage courses, generate attendance QR codes, and view attendance analytics.
+
 
 ## Features
 - **Dashboard**: Overview of active courses and recent sessions.

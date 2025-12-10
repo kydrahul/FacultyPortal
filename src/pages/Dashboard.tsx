@@ -86,7 +86,7 @@ interface ContactPerson {
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const classSelectorRef = useRef<HTMLDivElement | null>(null);
+
   const [activeTab, setActiveTab] = useState("home");
   const [selectedDay, setSelectedDay] = useState('Monday');
   const [selectedCourse, setSelectedCourse] = useState<ClassSession | null>(null);
@@ -106,13 +106,10 @@ const Dashboard = () => {
   const [sessionTimeRemaining, setSessionTimeRemaining] = useState(3600);
 
   // Home quick session controls
-  const [classQuery, setClassQuery] = useState("");
-  const [selectedClass, setSelectedClass] = useState<string | null>(null);
-  const [showClassSuggestions, setShowClassSuggestions] = useState(false);
-  const [selectedQuickCourse, setSelectedQuickCourse] = useState<string>("");
+
   const [latitude, setLatitude] = useState<string>("");
   const [longitude, setLongitude] = useState<string>("");
-  const [homeQRValue, setHomeQRValue] = useState<string>("");
+
   const [courseQRValue, setCourseQRValue] = useState<string>("");
   const [addClassDialogOpen, setAddClassDialogOpen] = useState(false);
   const [courses, setCourses] = useState<ClassSession[]>([]);
@@ -163,16 +160,7 @@ const Dashboard = () => {
     return () => clearInterval(id);
   }, []);
 
-  // Close class suggestions on outside click
-  useEffect(() => {
-    const onDocMouseDown = (e: MouseEvent) => {
-      if (classSelectorRef.current && !classSelectorRef.current.contains(e.target as Node)) {
-        setShowClassSuggestions(false);
-      }
-    };
-    document.addEventListener('mousedown', onDocMouseDown);
-    return () => document.removeEventListener('mousedown', onDocMouseDown);
-  }, []);
+
 
   // Build timetable dynamically from all courses
   const buildTimetable = () => {
@@ -408,11 +396,7 @@ const Dashboard = () => {
     }
   };
 
-  // Class autocomplete options - only show classes where faculty has created courses
-  const uniqueClasses = Array.from(
-    new Set(facultyData.courses.map(c => `${c.branch}${c.year}`))
-  ).sort();
-  const filteredClassOptions = uniqueClasses.filter(opt => opt.toLowerCase().includes(classQuery.toLowerCase()));
+
 
   const handleClassAdded = async (_classData: any) => {
     // Refresh from API to ensure consistent view
@@ -488,66 +472,7 @@ const Dashboard = () => {
     );
   };
 
-  const generateHomeQR = () => {
-    // Validate class selection
-    const cls = selectedClass || classQuery;
-    if (!cls) {
-      toast.error('Please select a class');
-      return;
-    }
 
-    // Validate course selection
-    if (!selectedQuickCourse) {
-      toast.error('Please select a course/subject');
-      return;
-    }
-
-    // Find the selected course
-    const course = courses.find(c => c.id === selectedQuickCourse);
-    if (!course) {
-      toast.error('Course not found');
-      return;
-    }
-
-    // Switch to the course view and start session
-    setSelectedCourse(course);
-    setActiveTab('classes');
-
-    // Reset session state
-    setQrActive(false);
-    setSessionEnded(false);
-    setAttendanceList([]);
-
-    // Use course-specific students if available
-    const courseStudents = course.students?.map(s => ({
-      id: s.id,
-      name: s.name,
-      roll: s.rollNumber,
-      status: null as 'present' | 'absent' | null
-    })) || [];
-    setStudentList(courseStudents);
-
-    // Auto-generate QR for the course
-    setTimeout(async () => {
-      try {
-        const response = await generateQr({
-          courseId: course.id,
-          latitude: latitude ? parseFloat(latitude) : undefined,
-          longitude: longitude ? parseFloat(longitude) : undefined,
-          radius: locationRadius,
-          validitySeconds: qrDuration * 60
-        });
-
-        setQrActive(true);
-        setQrTimer(qrDuration * 60);
-        setCourseQRValue(response.qrData);
-        toast.success(`Session started for ${course.courseName}`);
-      } catch (error: any) {
-        toast.error(error.message || 'Failed to start session');
-        console.error('Session start error:', error);
-      }
-    }, 100);
-  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -623,105 +548,7 @@ const Dashboard = () => {
       <main className="container mx-auto px-4 py-8">
         {activeTab === 'home' && !selectedCourse && (
           <div className="space-y-8">
-            {/* Quick Session Controls */}
-            <Card className="p-6">
-              <h2 className="text-2xl font-bold mb-4">Start Quick Session</h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {/* Class selector with suggestions */}
-                <div className="relative" ref={classSelectorRef}>
-                  <label className="block text-sm font-medium mb-2">Select Class</label>
-                  <Input
-                    placeholder="e.g., CSE2024"
-                    value={selectedClass ? selectedClass : classQuery}
-                    onChange={(e) => {
-                      setSelectedClass(null);
-                      setClassQuery((e.target as HTMLInputElement).value);
-                      setShowClassSuggestions(true);
-                      setSelectedQuickCourse(""); // Reset course when class changes
-                    }}
-                    onFocus={() => setShowClassSuggestions(true)}
-                    onBlur={() => setTimeout(() => setShowClassSuggestions(false), 100)}
-                    onKeyDown={(e) => { if (e.key === 'Escape') setShowClassSuggestions(false); }}
-                  />
-                  {showClassSuggestions && (classQuery || !selectedClass) && (
-                    <div className="absolute z-10 mt-1 w-full bg-card border rounded-md shadow-lg max-h-48 overflow-auto">
-                      {filteredClassOptions.length === 0 ? (
-                        <div className="p-2 text-sm text-muted-foreground">No matches</div>
-                      ) : filteredClassOptions.map(opt => (
-                        <button
-                          key={opt}
-                          className="w-full text-left px-3 py-2 hover:bg-muted text-sm"
-                          onClick={() => {
-                            setSelectedClass(opt);
-                            setClassQuery('');
-                            setShowClassSuggestions(false);
 
-                            // Auto-select course if only one option
-                            const matchingCourses = courses.filter(c => c.className === opt);
-                            if (matchingCourses.length === 1) {
-                              setSelectedQuickCourse(matchingCourses[0].id);
-                            } else {
-                              setSelectedQuickCourse("");
-                            }
-                          }}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Course/Subject selector */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Select Course/Subject</label>
-                  <Select
-                    value={selectedQuickCourse}
-                    onValueChange={setSelectedQuickCourse}
-                    disabled={!selectedClass && !classQuery}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Choose subject" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {courses
-                        .filter(c => {
-                          const cls = selectedClass || classQuery;
-                          return cls ? c.className === cls : true;
-                        })
-                        .map(course => (
-                          <SelectItem key={course.id} value={course.id}>
-                            {course.courseCode} - {course.courseName}
-                          </SelectItem>
-                        ))
-                      }
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* QR Duration */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">QR Validity (minutes)</label>
-                  <Input type="number" min={1} value={qrDuration} onChange={(e) => setQrDuration(Math.max(1, parseInt((e.target as HTMLInputElement).value) || 1))} />
-                </div>
-
-                {/* Location coords */}
-                <div className="md:col-span-2 lg:col-span-1">
-                  <label className="block text-sm font-medium mb-2">Location (optional)</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Input placeholder="Latitude" value={latitude} onChange={(e) => setLatitude((e.target as HTMLInputElement).value)} />
-                    <Input placeholder="Longitude" value={longitude} onChange={(e) => setLongitude((e.target as HTMLInputElement).value)} />
-                  </div>
-                  <Button variant="outline" className="mt-2" onClick={useCurrentLocation}>Use Current Location</Button>
-                </div>
-              </div>
-
-              <div className="mt-4 flex items-center gap-3">
-                <Button onClick={generateHomeQR} className="gap-2">
-                  <QrCode className="w-4 h-4" /> Start Session
-                </Button>
-              </div>
-            </Card>
 
             {/* Today's Schedule */}
             <Card className="p-6">
