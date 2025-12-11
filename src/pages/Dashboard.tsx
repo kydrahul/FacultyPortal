@@ -164,7 +164,7 @@ const Dashboard = () => {
 
   // Build timetable dynamically from all courses
   const buildTimetable = () => {
-    const timetable: Record<string, Array<{ time: string; course: string; name: string; room?: string; type?: string }>> = {
+    const timetable: Record<string, Array<{ time: string; course: string; name: string; room?: string; type?: string; branch?: string; year?: string }>> = {
       Monday: [],
       Tuesday: [],
       Wednesday: [],
@@ -182,7 +182,9 @@ const Dashboard = () => {
               course: course.courseCode,
               name: course.courseName,
               room: slot.room || 'TBA',
-              type: slot.type
+              type: slot.type,
+              branch: course.branch,
+              year: course.year
             });
           }
         });
@@ -583,8 +585,7 @@ const Dashboard = () => {
                           </div>
                           <h3 className="text-xl font-bold mt-2">{slot.course} - {slot.name}</h3>
                           <p className="text-muted-foreground flex items-center gap-2 mt-1">
-                            <MapPin size={16} />
-                            {slot.room}
+                            {slot.branch} {slot.year}
                           </p>
                         </div>
                         <Button onClick={() => handleStartSession(slot.course)}>
@@ -797,8 +798,7 @@ const Dashboard = () => {
                                     {classInSlot.name}
                                   </div>
                                   <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                                    <MapPin size={10} />
-                                    {classInSlot.room}
+                                    {classInSlot.branch} {classInSlot.year}
                                   </div>
                                 </div>
                               ) : null}
