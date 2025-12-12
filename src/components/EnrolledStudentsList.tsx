@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Users, CheckCircle, XCircle, Minus, Download } from 'lucide-react';
+import { Users, CheckCircle, XCircle, Minus, Download, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { StudentHistoryDialog } from './StudentHistoryDialog';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -42,26 +48,41 @@ export const EnrolledStudentsList = ({ students, sessions, totalStudents, course
         setHistoryOpen(true);
     };
 
-    const downloadLowAttendanceReport = () => {
+    const downloadAttendanceReport = (filterArgs: 'all' | 'low' | 'high') => {
         const doc = new jsPDF();
-        const lowAttendanceStudents = students.filter(s => s.attendancePercentage < 75);
+        let targetStudents = students;
+        let title = "Attendance Report";
+        let filenamePrefix = "Attendance";
+
+        if (filterArgs === 'low') {
+            targetStudents = students.filter(s => s.attendancePercentage <= 75);
+            title = "Low Attendance Report (<= 75%)";
+            filenamePrefix = "Low_Attendance";
+        } else if (filterArgs === 'high') {
+            targetStudents = students.filter(s => s.attendancePercentage > 75);
+            title = "Good Attendance Report (> 75%)";
+            filenamePrefix = "Good_Attendance";
+        } else {
+            title = "Full Attendance Report";
+            filenamePrefix = "Full_Attendance";
+        }
 
         // Title
         doc.setFontSize(18);
-        doc.text("Low Attendance Report (< 75%)", 14, 20);
+        doc.text(title, 14, 20);
 
         // Course Info
         doc.setFontSize(12);
         doc.text(`Course: ${courseName || 'Unknown Course'}`, 14, 30);
         doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 36);
-        doc.text(`Total Students with Low Attendance: ${lowAttendanceStudents.length}`, 14, 42);
+        doc.text(`Students Found: ${targetStudents.length}`, 14, 42);
 
         // Table
-        const tableData = lowAttendanceStudents.map(s => [
+        const tableData = targetStudents.map(s => [
             s.rollNo,
             s.name,
             `${s.attendancePercentage.toFixed(1)}%`,
-            "Critical"
+            s.attendancePercentage <= 75 ? "Critical" : "Good"
         ]);
 
         autoTable(doc, {
@@ -69,10 +90,13 @@ export const EnrolledStudentsList = ({ students, sessions, totalStudents, course
             head: [['Roll Number', 'Name', 'Attendance %', 'Status']],
             body: tableData,
             theme: 'grid',
-            headStyles: { fillColor: [220, 38, 38] } // Red header for alert
+            headStyles: {
+                fillColor: filterArgs === 'low' ? [220, 38, 38] :
+                    filterArgs === 'high' ? [22, 163, 74] : [71, 85, 105]
+            }
         });
 
-        doc.save(`${courseName || 'Course'}_Low_Attendance_Report.pdf`);
+        doc.save(`${courseName || 'Course'}_${filenamePrefix}_Report.pdf`);
     };
 
     return (
@@ -85,15 +109,27 @@ export const EnrolledStudentsList = ({ students, sessions, totalStudents, course
                             <p className="text-sm text-muted-foreground">Showing last 7 sessions</p>
                         )}
                     </div>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={downloadLowAttendanceReport}
-                        className="flex items-center gap-2 border-red-200 hover:bg-red-50 text-red-700"
-                    >
-                        <Download size={16} />
-                        Download Report ({'<'} 75%)
-                    </Button>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                <Download size={16} />
+                                Download Report
+                                <ChevronDown size={14} className="opacity-50" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => downloadAttendanceReport('all')}>
+                                All Students
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadAttendanceReport('low')} className="text-red-600 focus:text-red-600">
+                                Low Attendance (≤ 75%)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadAttendanceReport('high')} className="text-green-600 focus:text-green-600">
+                                Good Attendance ({'>'} 75%)
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
                 {students.length === 0 ? (
