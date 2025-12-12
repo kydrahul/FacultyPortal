@@ -107,8 +107,18 @@ const Dashboard = () => {
 
   // Home quick session controls
 
-  const [latitude, setLatitude] = useState<string>("");
-  const [longitude, setLongitude] = useState<string>("");
+  // Default to IIITNR Campus Center (User provided)
+  const [latitude, setLatitude] = useState<string>("21.128602");
+  const [longitude, setLongitude] = useState<string>("81.766206");
+
+  // Static Rooms Configuration
+  const ROOM_COORDINATES: Record<string, { lat: number; lng: number }> = {
+    'DSAI (222)': { lat: 21.128604813254157, lng: 81.76622220182517 },
+    'CSE (207)': { lat: 21.128294088339608, lng: 81.76609319987554 },
+    'ECE (210)': { lat: 21.128473821457813, lng: 81.76596746379806 }
+  };
+
+  const [selectedRoom, setSelectedRoom] = useState<string>("");
 
   const [courseQRValue, setCourseQRValue] = useState<string>("");
   const [addClassDialogOpen, setAddClassDialogOpen] = useState(false);
@@ -211,6 +221,20 @@ const Dashboard = () => {
   // Fetch attendance grid when course is selected
   useEffect(() => {
     if (selectedCourse) {
+      // Load saved location for this course
+      const savedLoc = localStorage.getItem(`location_${selectedCourse.id}`);
+      if (savedLoc) {
+        try {
+          const { lat, lng } = JSON.parse(savedLoc);
+          setLatitude(lat);
+          setLongitude(lng);
+        } catch (e) { /* ignore */ }
+      } else {
+        // Clear if no saved location, or keep previous? Better to clear to avoid confusion
+        setLatitude("");
+        setLongitude("");
+      }
+
       (async () => {
         try {
           const res = await getCourseAttendanceGrid(selectedCourse.id);
@@ -303,6 +327,12 @@ const Dashboard = () => {
       setCourseQRValue(response.qrData);
       setCurrentSessionId(response.sessionId);
       setLiveAttendanceList([]);
+
+      // Save valid location for this course to help Laptop users
+      if (latitude && longitude) {
+        localStorage.setItem(`location_${selectedCourse.id}`, JSON.stringify({ lat: latitude, lng: longitude }));
+      }
+
       toast.success(`Session started (${classType})! QR will refresh every 5 seconds.`);
     } catch (error: any) {
       toast.error(error.message || 'Failed to generate QR code');
@@ -936,31 +966,40 @@ const Dashboard = () => {
                           </div>
                         </div>
 
-                        {/* Location Selection */}
+                        {/* Location Selection - Static Rooms */}
                         <div>
                           <label className="block text-sm font-medium mb-2">
-                            Location
+                            Select Classroom <span className="text-red-500">*</span>
                           </label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <Input
-                              placeholder="Latitude"
-                              value={latitude}
-                              onChange={(e) => setLatitude((e.target as HTMLInputElement).value)}
-                            />
-                            <Input
-                              placeholder="Longitude"
-                              value={longitude}
-                              onChange={(e) => setLongitude((e.target as HTMLInputElement).value)}
-                            />
-                          </div>
-                          <Button
-                            variant="outline"
-                            className="mt-2 w-full"
-                            onClick={useCurrentLocation}
+                          <Select
+                            value={selectedRoom}
+                            onValueChange={(val) => {
+                              setSelectedRoom(val);
+                              // Auto-fill coordinates based on room
+                              if (ROOM_COORDINATES[val]) {
+                                setLatitude(String(ROOM_COORDINATES[val].lat));
+                                setLongitude(String(ROOM_COORDINATES[val].lng));
+                              }
+                            }}
                           >
-                            <MapPin className="w-4 h-4 mr-2" />
-                            Use Current Location
-                          </Button>
+                            <SelectTrigger className={!selectedRoom ? "border-red-300" : ""}>
+                              <SelectValue placeholder="Select Room (Required)" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Object.keys(ROOM_COORDINATES).map((room) => (
+                                <SelectItem key={room} value={room}>
+                                  {room}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          {/* Hidden inputs / Debug view */}
+                          {selectedRoom && (
+                            <p className="text-xs text-muted-foreground mt-2">
+                              Target: {latitude}, {longitude}
+                            </p>
+                          )}
                         </div>
 
                         {/* Auto-Refresh Settings */}
@@ -994,6 +1033,7 @@ const Dashboard = () => {
                           onClick={generateQR}
                           className="w-full flex items-center justify-center gap-2"
                           size="lg"
+                          disabled={!selectedRoom} // Mandatory Selection
                         >
                           <QrCode size={24} />
                           Generate QR Code
