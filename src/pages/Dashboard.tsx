@@ -1233,6 +1233,7 @@ const Dashboard = () => {
                   students={attendanceGridStudents}
                   sessions={attendanceGridSessions}
                   totalStudents={selectedCourse.totalStudents}
+                  courseName={selectedCourse.courseName}
                 />
               </div>
             )}

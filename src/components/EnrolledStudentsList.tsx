@@ -1,8 +1,11 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Users, CheckCircle, XCircle, Minus } from 'lucide-react';
+import { Users, CheckCircle, XCircle, Minus, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { StudentHistoryDialog } from './StudentHistoryDialog';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Session {
     id: string;
@@ -24,9 +27,10 @@ interface EnrolledStudentsListProps {
     students: Student[];
     sessions: Session[];
     totalStudents: number;
+    courseName?: string;
 }
 
-export const EnrolledStudentsList = ({ students, sessions, totalStudents }: EnrolledStudentsListProps) => {
+export const EnrolledStudentsList = ({ students, sessions, totalStudents, courseName }: EnrolledStudentsListProps) => {
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -38,14 +42,58 @@ export const EnrolledStudentsList = ({ students, sessions, totalStudents }: Enro
         setHistoryOpen(true);
     };
 
+    const downloadLowAttendanceReport = () => {
+        const doc = new jsPDF();
+        const lowAttendanceStudents = students.filter(s => s.attendancePercentage < 75);
+
+        // Title
+        doc.setFontSize(18);
+        doc.text("Low Attendance Report (< 75%)", 14, 20);
+
+        // Course Info
+        doc.setFontSize(12);
+        doc.text(`Course: ${courseName || 'Unknown Course'}`, 14, 30);
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 36);
+        doc.text(`Total Students with Low Attendance: ${lowAttendanceStudents.length}`, 14, 42);
+
+        // Table
+        const tableData = lowAttendanceStudents.map(s => [
+            s.rollNo,
+            s.name,
+            `${s.attendancePercentage.toFixed(1)}%`,
+            "Critical"
+        ]);
+
+        autoTable(doc, {
+            startY: 50,
+            head: [['Roll Number', 'Name', 'Attendance %', 'Status']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [220, 38, 38] } // Red header for alert
+        });
+
+        doc.save(`${courseName || 'Course'}_Low_Attendance_Report.pdf`);
+    };
+
     return (
         <>
             <Card className="p-6">
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold">Enrolled Students ({totalStudents})</h3>
-                    {sessions.length > 7 && (
-                        <p className="text-sm text-muted-foreground">Showing last 7 sessions</p>
-                    )}
+                    <div>
+                        <h3 className="text-xl font-bold">Enrolled Students ({totalStudents})</h3>
+                        {sessions.length > 7 && (
+                            <p className="text-sm text-muted-foreground">Showing last 7 sessions</p>
+                        )}
+                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={downloadLowAttendanceReport}
+                        className="flex items-center gap-2 border-red-200 hover:bg-red-50 text-red-700"
+                    >
+                        <Download size={16} />
+                        Download Report ({'<'} 75%)
+                    </Button>
                 </div>
 
                 {students.length === 0 ? (
